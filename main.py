@@ -29,6 +29,24 @@ async def on_start_up(_):
     print('Бот был успешно запущен')
 
 
+@dp.message_handler(commands=['echo'])
+async def echo(message: types.Message):
+    # The line located below allow to answer message (not reply) in current chat
+    # where object message appeared
+    await message.answer(text=message.text)
+    # This line allows to send message in different chat calling them by their's id (chat_id = ...)
+    await bot.send_message(text=message.text,
+                           chat_id=message.chat.id)
+    # the line below send text message to user in ЛС, who sended command in group chat
+    await bot.send_message(text="I'm writing this code at 1:55", chat_id=message.from_user.id)
+
+
+@dp.message_handler(commands=['photo'])
+async def send_image(message: types.Message):
+    await bot.send_photo(chat_id=message.from_user.id,
+                         photo="https://31.img.avito.st/image/1/otJJkLaxDjt_J4w2AbrZxb0zDj_1MQQ5")
+
+
 # Обрабатываем команду \help
 @dp.message_handler(commands=['help'])
 async def help_command(message: types.Message):
@@ -39,8 +57,8 @@ async def help_command(message: types.Message):
 
 @dp.message_handler(commands=['start'])
 async def start_command(message: types.Message):
-    # Поддерживает какую-то неадекватную HTML-разметку
-    await message.answer('<a>Привет!</a>', parse_mode='HTML')
+    # Поддерживает какую-то неадекватную HTML-разметку (типа курсив)
+    await message.answer('<em>Привет!</em>', parse_mode='HTML')
 
 
 @dp.message_handler(commands=['give'])
