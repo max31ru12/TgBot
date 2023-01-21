@@ -33,14 +33,3 @@ for key in goods_list.keys():
         catalog_keyboard.insert(f'/{key}')
     botton_count += 1
 
-
-@dp.message_handler(commands='Кроссовки')
-async def boots(message: types.Message):
-    await message.answer(text='Some description', )
-
-
-
-
-
-
-
