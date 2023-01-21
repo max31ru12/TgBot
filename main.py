@@ -1,7 +1,8 @@
 import logging
 # import asyncio
 from aiogram import Bot, Dispatcher, types, executor
-from aiogram.types import ReplyKeyboardMarkup, KeyboardButton, ReplyKeyboardRemove
+from aiogram.types import ReplyKeyboardMarkup, KeyboardButton, ReplyKeyboardRemove, InlineKeyboardMarkup, \
+InlineKeyboardButton
 from catalog.catalog import catalog_keyboard, HELP_COMMAND, goods_list
 
 # Base bot's configurations
@@ -68,9 +69,24 @@ async def card_list(message: types.Message):
 @dp.message_handler(commands=goods_list.keys())
 async def good(message: types.Message):
     command = message.text.replace('/', '')
-    print(command)
     await bot.send_photo(photo=goods_list[command]['photo_link'], chat_id=message.chat.id, )
-    await message.answer(text=goods_list[command]['description'])
+    await message.answer(text=goods_list[command]['description'],
+                         reply_markup=ReplyKeyboardRemove())
+
+
+# row_width - сколько кнпопок может располагаться в одной строке (default = 3)
+inline_keyboard = InlineKeyboardMarkup(row_width=2)
+inl_kb_bttn = InlineKeyboardButton(text='Мой GitHub',
+                                   url='https://github.com/max31ru12')
+# Добавление кнопки
+inline_keyboard.add(inl_kb_bttn)
+
+
+@dp.message_handler(commands=['inline_kb'])
+async def ikb(message: types.Message):
+    await bot.send_message(chat_id=message.from_user.id,
+                           reply_markup=inline_keyboard,
+                           text='Hello World!')
 
 
 if __name__ == '__main__':
