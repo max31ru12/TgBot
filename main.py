@@ -2,7 +2,7 @@ import logging
 # import asyncio
 from aiogram import Bot, Dispatcher, types, executor
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton, ReplyKeyboardRemove, InlineKeyboardMarkup, \
-InlineKeyboardButton
+    InlineKeyboardButton
 from catalog.catalog import catalog_keyboard, HELP_COMMAND, goods_list
 
 # Base bot's configurations
@@ -47,6 +47,8 @@ async def start_command(message: types.Message):
     await message.answer('<em>Привет!</em>',
                          parse_mode='HTML',
                          reply_markup=kb)
+
+
 # reply_markup - сюда передается клавиатура, которую нужно создать заранее
 
 
@@ -70,8 +72,7 @@ async def card_list(message: types.Message):
 async def good(message: types.Message):
     command = message.text.replace('/', '')
     await bot.send_photo(photo=goods_list[command]['photo_link'], chat_id=message.chat.id, )
-    await message.answer(text=goods_list[command]['description'],
-                         reply_markup=ReplyKeyboardRemove())
+    await message.answer(text=goods_list[command]['description'])
 
 
 # row_width - сколько кнпопок может располагаться в одной строке (default = 3)
@@ -89,12 +90,40 @@ async def ikb(message: types.Message):
                            text='Hello World!')
 
 
+# Что-то про callback
+@dp.message_handler(commands=['vote'])
+async def vote_command(message: types.Message):
+    ink = InlineKeyboardMarkup(row_width=2)
+    ib1 = InlineKeyboardButton(text='❤️',
+                               callback_data='like')
+    # callback_data - это те данные, которые будут передаваться при генерировании callback-запроса
+    # нажатие на кнопку - событие, с callback_data на кнопке появляются часики, они ждут
+    # исполнения какой-то функции
+    ib2 = InlineKeyboardButton(text='🤢',
+                               callback_data='dislike')
+    ink.add(ib1, ib2)
+
+    await bot.send_photo(chat_id=message.from_user.id,
+                         photo='https://zookakadu.ru/wp-content/uploads/4/d/5/4d5181fc910edd7ef64c99fa80df6aa8.jpeg',
+                         caption='Нравится ли тебе данная фотография',
+                         reply_markup=ink)
+
+# Хэндлер для callback-запросов (в скобочках указываются типы запросов)
+@dp.callback_query_handler()
+# функция, которая будет приходить в исполнение
+async def vote_callback(callback: types.CallbackQuery):
+    if callback.data == 'like':
+        await callback.answer(text='Тебе понравилась данная фотография')
+    else:
+        await callback.answer(text='Тебе не понравилась данная фотография')
+
+
+
 if __name__ == '__main__':
     # Запускаем бота в режиме поллинга
     # skip_updates = False (так по умолчанию)- юзер пиишет боту, бот не онлайн, когла
     # бот заходит, то отвечает на все сообщения
     executor.start_polling(dp, skip_updates=True, on_startup=on_start_up)
-
 
 # @dp.message_handler(commands=['give'])
 # async def sticker_message(message: types.Message):
